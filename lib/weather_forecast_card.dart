@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 
-class WeatherForecastCard extends StatefulWidget {
-  const WeatherForecastCard({super.key});
+class WeatherForecastCard extends StatelessWidget {
+  final String time;
+  final IconData icon;
+  final String temp;
+  const WeatherForecastCard(
+      {super.key, required this.time, required this.icon, required this.temp});
 
-  @override
-  State<WeatherForecastCard> createState() => _WeatherForecastCardState();
-}
-
-class _WeatherForecastCardState extends State<WeatherForecastCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -16,21 +15,21 @@ class _WeatherForecastCardState extends State<WeatherForecastCard> {
         width: 100,
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
-        child: const Column(
+        child: Column(
           children: [
             Text(
-              '09:00AM',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              time,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 5),
+            const SizedBox(height: 5),
             Icon(
-              Icons.cloud,
+              icon,
               size: 35,
             ),
-            SizedBox(height: 5),
+            const SizedBox(height: 5),
             Text(
-              '27 °C',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              temp,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ],
         ),
