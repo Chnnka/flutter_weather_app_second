@@ -6,6 +6,7 @@ import 'package:flutter_weather_app_second/additional_info_Item.dart';
 import 'package:flutter_weather_app_second/keys.dart';
 import 'package:flutter_weather_app_second/weather_forecast_card.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 class WeatherScreen extends StatefulWidget {
   const WeatherScreen({super.key});
@@ -15,6 +16,7 @@ class WeatherScreen extends StatefulWidget {
 }
 
 class _WeatherScreenState extends State<WeatherScreen> {
+  late Future<Map<String, dynamic>> weather;
   Future<Map<String, dynamic>> getCurrentWeather() async {
     try {
       String cityName = 'Colombo';
@@ -36,6 +38,12 @@ class _WeatherScreenState extends State<WeatherScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    weather = getCurrentWeather();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -43,13 +51,17 @@ class _WeatherScreenState extends State<WeatherScreen> {
         centerTitle: true,
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              setState(() {
+                weather = getCurrentWeather();
+              });
+            },
             icon: const Icon(Icons.refresh_rounded),
           )
         ],
       ),
       body: FutureBuilder(
-        future: getCurrentWeather(),
+        future: weather,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator.adaptive());
@@ -60,6 +72,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
           final data = snapshot.data!;
           final currentWeatherData = data['list'][0];
+          //location
+          final location = data['city']['name'];
           //temperature
           final temp = currentWeatherData['main']['temp'];
           var currentTemp = (temp - 273.15).toDouble();
@@ -98,6 +112,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                 style: const TextStyle(
                                     fontSize: 32, fontWeight: FontWeight.bold),
                               ),
+                              Text('$location'),
                               const SizedBox(height: 10),
                               Icon(
                                 currentSky == 'Clouds' || currentSky == 'Rain'
@@ -128,28 +143,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
                           TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 12),
-                    // SingleChildScrollView(
-                    //   scrollDirection: Axis.horizontal,
-                    //   child: Row(
-                    //     children: [
-                    //       for (int i = 0; i < 10; i++)
-                    //         WeatherForecastCard(
-                    //             time: data['list'][i + 1]['dt'].toString(),
-                    //             temp: ((data['list'][i + 1]['main']['temp']) -
-                    //                         273.15)
-                    //                     .toStringAsFixed(2) +
-                    //                 ' \u00B0C',
-                    //             icon: data["list"][i + 1]['weather'][0]
-                    //                             ['main'] ==
-                    //                         'Cloud' ||
-                    //                     data["list"][i + 1]['weather'][0]
-                    //                             ['main'] ==
-                    //                         'Rain'
-                    //                 ? Icons.cloud
-                    //                 : Icons.sunny),
-                    //     ],
-                    //   ),
-                    // ),
                     SizedBox(
                       height: 130,
                       child: ListView.builder(
@@ -161,8 +154,10 @@ class _WeatherScreenState extends State<WeatherScreen> {
                               data["list"][index + 1]['weather'][0]['main'];
                           final hourlyTemp =
                               ((hourlyForecast['main']['temp']) - 273.15);
+                          final timeFormatted =
+                              DateTime.parse(hourlyForecast['dt_txt']);
                           return WeatherForecastCard(
-                            time: hourlyForecast['dt_txt'].toString(),
+                            time: DateFormat.j().format(timeFormatted),
                             icon: hourlySky == 'Cloud' || hourlySky == 'Rain'
                                 ? Icons.cloud
                                 : Icons.sunny,
